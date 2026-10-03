@@ -12,6 +12,7 @@ import {
   downloadFileUrl,
   downloadMedia,
   getVideoInfo,
+  sendContact,
   testBackend,
   validateUrl
 } from "./api";
@@ -469,15 +470,102 @@ function Terms() {
   </StaticPage>;
 }
 
+const ICONS = {
+  user: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>,
+  mail: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></svg>,
+  subject: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>,
+  message: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" /><path d="M14 2v4a2 2 0 0 0 2 2h4" /><path d="M10 9H8" /><path d="M16 13H8" /><path d="M16 17H8" /></svg>,
+  send: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z" /><path d="M22 2 11 13" /></svg>
+};
+
 function Contact() {
-  return <StaticPage eyebrow="CONTACT" title="Contact DoraClip">
-    <p>For a production deployment, replace this page with your real support email or contact form.</p>
-    <div className="contactBox">
-      <strong>Support</strong>
-      <span>support@your-domain.example</span>
-      <small>Update this address before publishing the website.</small>
-    </div>
-  </StaticPage>;
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+  const [status, setStatus] = useState("idle");
+  const [note, setNote] = useState("");
+
+  const busy = status === "sending";
+
+  async function submit(e) {
+    e.preventDefault();
+    if (busy) return;
+    if (!name.trim() || !email.trim() || !message.trim()) {
+      setStatus("error");
+      setNote("Please fill in your name, email and message.");
+      return;
+    }
+    setStatus("sending");
+    setNote("Sending your message...");
+    try {
+      const res = await sendContact({
+        name: name.trim(),
+        email: email.trim(),
+        subject: subject.trim(),
+        message: message.trim()
+      });
+      setStatus("success");
+      setNote(res?.message || "Thanks! Your message has been sent.");
+      setName("");
+      setEmail("");
+      setSubject("");
+      setMessage("");
+    } catch (err) {
+      setStatus("error");
+      setNote(err.message || "Could not send your message. Please try again.");
+    }
+  }
+
+  return (
+    <main>
+      <section className="pageHero container">
+        <span className="eyebrow">CONTACT</span>
+        <h1>Contact DoraClip</h1>
+        <p>Have a question, feedback, or need help? We'd love to hear from you. Send us a message and we'll get back to you as soon as possible.</p>
+      </section>
+      <section className="container prose">
+        <form className="contactCard" onSubmit={submit} noValidate>
+          <div className="contactRow">
+            <div className="contactField">
+              <span>Full Name</span>
+              <div className="inputWrap">{ICONS.user}
+                <input value={name} onChange={e => setName(e.target.value)} placeholder="Enter your full name" autoComplete="name" />
+              </div>
+            </div>
+            <div className="contactField">
+              <span>Email Address</span>
+              <div className="inputWrap">{ICONS.mail}
+                <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" autoComplete="email" />
+              </div>
+            </div>
+          </div>
+          <div className="contactField">
+            <span>Subject</span>
+            <div className="inputWrap">{ICONS.subject}
+              <input value={subject} onChange={e => setSubject(e.target.value)} placeholder="How can we help?" />
+            </div>
+          </div>
+          <div className="contactField">
+            <span>Message</span>
+            <div className="inputWrap textareaWrap">{ICONS.message}
+              <textarea value={message} onChange={e => setMessage(e.target.value)} placeholder="Write your message here..." />
+            </div>
+          </div>
+          {note && (
+            <div className={`status ${status === "error" ? "statusError" : status === "success" ? "statusSuccess" : ""}`}>
+              {note}
+            </div>
+          )}
+          <div className="downloadActions">
+            <button type="submit" className="sendBtn" disabled={busy}>
+              {ICONS.send} {busy ? "Sending..." : "Send Message"}
+            </button>
+          </div>
+        </form>
+      </section>
+    </main>
+  );
 }
 
 function BackendStatus() {

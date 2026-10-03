@@ -60,4 +60,13 @@ export function downloadFileUrl(fileName) {
   return `${API_BASE_URL}/api/download/file?fileName=${encodeURIComponent(fileName)}`;
 }
 
+export async function sendContact({ name, email, subject, message }) {
+  const response = await fetch(`${API_BASE_URL}/api/contact`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+    body: JSON.stringify({ name, email, subject, message })
+  });
+  return readResponse(response);
+}
+
 export { API_BASE_URL };
