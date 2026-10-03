@@ -47,17 +47,19 @@ npm run dev     # http://localhost:5173, /api/* proxied to :8080
 
 ## Deploy (Railway / Docker)
 
-Deploy this folder as one service. Docker builds UI + JAR automatically:
+Deploy this folder as one service. Docker builds UI + JAR automatically.
+Linux tool paths (`yt-dlp`, `ffmpeg`, `/app/downloads`) are baked into the
+image via `ENV`, and `PORT` is respected via `server.port=${PORT:8080}` —
+so Railway needs **zero env vars**. `railway.json` pins the Dockerfile
+builder, healthchecks `/api/test`, and restarts on failure.
+
+Railway click-path: New Project → Deploy from GitHub → select
+`idv-doraclick` → done. The public URL serves the UI + API.
 
 ```powershell
-docker build -t doraclip .
-docker run -p 8080:8080 `
-  -e YTDLP_PATH=/usr/local/bin/yt-dlp `
-  -e FFMPEG_PATH=/usr/bin/ffmpeg `
-  doraclip
+docker build -t idv-doraclick .
+docker run -p 8080:8080 idv-doraclick
 ```
-
-Set `PORT` if the platform assigns one (already supported via `server.port=${PORT:8080}`).
 
 ## Add a new frontend page
 

@@ -57,6 +57,12 @@ COPY --from=build /app/target/*.jar app.jar
 # Download directory
 RUN mkdir -p /app/downloads
 
+# Linux tool locations inside this image. These override the Windows
+# defaults in application.properties, so Railway needs zero env config.
+ENV YTDLP_PATH=/usr/local/bin/yt-dlp \
+    FFMPEG_PATH=/usr/bin/ffmpeg \
+    YTDLP_DOWNLOAD_DIR=/app/downloads
+
 EXPOSE 8080
 
 ENTRYPOINT ["java", "-jar", "app.jar"]

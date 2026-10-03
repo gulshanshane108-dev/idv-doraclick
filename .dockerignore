@@ -8,3 +8,5 @@ temp/
 .vscode/
 .env
 application-local.properties
+server.log
+server.err.log
