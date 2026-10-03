@@ -1,8 +1,11 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { viteSingleFile } from "vite-plugin-singlefile";
 
 export default defineConfig({
-  plugins: [react()],
+  // Single-file build: all JS/CSS inlined into index.html, so the page
+  // needs zero /assets/* sub-requests (some networks block those).
+  plugins: [react(), viteSingleFile()],
   server: {
     host: "localhost",
     port: 5173,
