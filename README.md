@@ -1,3 +1,71 @@
+# DoraClip — Merged Full-Stack (single port)
+
+Spring Boot backend + React frontend in **one** deployable. The Vite build
+output lives in `src/main/resources/static`, so the single JAR serves both
+the UI and the API on port `8080`. No CORS needed in production.
+
+```
+idv-doraclick/
+├── frontend/                  React source (Vite). Builds into the folder below.
+├── src/main/resources/static/ React production build (generated, committed).
+├── src/main/java/.../controller/SpaController.java  SPA fallback (/downloader, /faq, ... -> index.html)
+├── Dockerfile                 Node build + Maven build + runtime (one image, port 8080)
+└── build-fullstack.ps1        Local one-command merged build
+```
+
+## Run merged (one port)
+
+```powershell
+# from idv-doraclick/
+.\build-fullstack.ps1
+java -jar target\backend-0.0.1-SNAPSHOT.jar
+```
+
+Open `http://localhost:8080` — UI and API are on the same origin.
+
+## Rebuild only the UI
+
+```powershell
+cd frontend
+npm install
+npm run build   # writes into ../src/main/resources/static
+```
+
+Then rebuild the JAR (`mvn package -DskipTests`) or just restart with
+`.\mvnw.cmd spring-boot:run` (it serves the fresh static files directly).
+
+## Dev mode (two servers, optional)
+
+```powershell
+# terminal 1 — backend
+.\mvnw.cmd spring-boot:run
+# terminal 2 — frontend with hot reload
+cd frontend
+npm install
+npm run dev     # http://localhost:5173, /api/* proxied to :8080
+```
+
+## Deploy (Railway / Docker)
+
+Deploy this folder as one service. Docker builds UI + JAR automatically:
+
+```powershell
+docker build -t doraclip .
+docker run -p 8080:8080 `
+  -e YTDLP_PATH=/usr/local/bin/yt-dlp `
+  -e FFMPEG_PATH=/usr/bin/ffmpeg `
+  doraclip
+```
+
+Set `PORT` if the platform assigns one (already supported via `server.port=${PORT:8080}`).
+
+## Add a new frontend page
+
+1. Add the `Route` in `frontend/src/App.jsx`.
+2. Add its path to `SpaController.java` so direct visits / refreshes work.
+
+---
+
 # DoraClip Backend — Local Development
 
 Spring Boot backend for DoraClip, a multi-platform social-media media downloader.

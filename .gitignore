@@ -44,3 +44,7 @@ application-local.yml
 # Temporary downloader files
 temp/
 downloads/
+
+# Local run logs (java -jar redirected output)
+server.log
+server.err.log

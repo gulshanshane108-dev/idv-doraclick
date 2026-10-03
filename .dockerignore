@@ -1,0 +1,10 @@
+.git/
+target/
+frontend/node_modules/
+frontend/dist/
+downloads/
+temp/
+.idea/
+.vscode/
+.env
+application-local.properties
