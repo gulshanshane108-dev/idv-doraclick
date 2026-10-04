@@ -86,6 +86,8 @@ public class ContactController {
                     "status", "success",
                     "message", "Thanks! Your message has been sent."));
         } catch (Exception e) {
+            System.err.println("[CONTACT] Mail send failed: "
+                    + e.getClass().getSimpleName() + ": " + e.getMessage());
             return ResponseEntity.internalServerError().body(Map.of(
                     "status", "error",
                     "message", "Could not send your message right now. Please try again later."));
