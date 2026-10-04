@@ -60,6 +60,24 @@ input:focus,select:focus{border-color:#8a7dff;box-shadow:0 0 0 4px rgba(109,93,2
 .faqList{padding-bottom:100px;display:flex;flex-direction:column;gap:10px}.faqItem{position:relative;text-align:left;border:1px solid #e5e5ef;background:#fff;border-radius:15px;padding:20px 50px 20px 20px;color:#20243a;font-weight:800}.faqItem>b{position:absolute;right:20px}.faqItem p{margin:13px 0 0;color:#72788b;font-weight:450;line-height:1.6}
 .prose{padding-bottom:100px;max-width:850px;margin-left:auto;margin-right:auto}.prose h2{font-size:28px;margin-top:42px}.prose p{color:#62687a;line-height:1.8}.contactBox{display:flex;flex-direction:column;gap:7px;margin-top:25px;padding:22px;border:1px solid #e5e5ef;border-radius:16px}.contactBox small{color:#8a8f9e}
 .footer{border-top:1px solid #ececf3;background:#fff}.footerGrid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:50px;padding:50px 0}.footerGrid p{color:#7c8190;font-size:13px;max-width:330px;line-height:1.6}.footerGrid h4{margin:0 0 12px}.footerGrid a:not(.brand){display:block;text-decoration:none;color:#777d8d;font-size:13px;margin:8px 0}.footerBottom{border-top:1px solid #eeeef3;padding:20px 0;display:flex;justify-content:space-between;color:#858a99;font-size:11px}
+/* Auto platform theming: paste a URL -> download section takes that platform colour */
+.downloadCard{--accent:#6d5dfc;--accent-soft:#f0edff;--accent-border:#dcd9f8;position:relative;overflow:hidden;border-color:var(--accent-border);transition:border-color .25s ease,box-shadow .25s ease}
+.downloadCard::before{content:"";position:absolute;top:0;left:0;right:0;height:5px;background:var(--accent);opacity:0;transition:opacity .25s ease}
+.downloadCard[data-platform="Instagram"]::before{background:linear-gradient(90deg,#F58529,#DD2A7B 45%,#8134AF 75%,#515BD4);opacity:1}
+.downloadCard[data-platform="YouTube"]::before,.downloadCard[data-platform="Facebook"]::before,.downloadCard[data-platform="TikTok"]::before,.downloadCard[data-platform="X"]::before{opacity:1}
+.downloadCard[data-platform="Instagram"],.downloadCard[data-platform="YouTube"],.downloadCard[data-platform="Facebook"],.downloadCard[data-platform="TikTok"],.downloadCard[data-platform="X"]{border-color:var(--accent-border);box-shadow:0 28px 75px rgba(39,31,92,.13),0 0 0 4px var(--accent-soft)}
+.downloadCard .eyebrow.tiny{background:var(--accent-soft);color:var(--accent);transition:background .25s ease,color .25s ease}
+.downloadCard .button.primary{background:var(--accent);transition:background .25s ease,transform .15s ease}
+.downloadCard[data-platform="Instagram"] .button.primary{background:linear-gradient(45deg,#F58529,#DD2A7B 45%,#8134AF 75%,#515BD4)}
+.downloadCard .button.primary:not(:disabled):hover{filter:brightness(1.05)}
+.downloadCard .outlineButton{color:var(--accent);border-color:var(--accent-border);transition:color .25s ease,border-color .25s ease}
+.downloadCard input:focus,.downloadCard select:focus{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+.downloadCard .status:not(.statusError):not(.statusSuccess){background:var(--accent-soft);color:var(--accent)}
+.detected.muted{background:#f2f3f7;color:#8a8fa0;border-color:#e5e6ee}
+.platformCard{transition:border-color .25s ease,background .25s ease,box-shadow .25s ease,transform .25s ease}
+.platformCard.active{border-color:var(--card-border);background:var(--card-soft);box-shadow:0 12px 30px rgba(0,0,0,.08);transform:translateY(-2px)}
+.platformCard.active .platformIcon{color:var(--card-accent)}
+.platformActiveDot{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--card-accent)}
 
 @media(max-width:950px){.hero{grid-template-columns:1fr;gap:35px}.platformGrid{grid-template-columns:repeat(2,1fr)}.featureGrid,.downloaderSection{grid-template-columns:1fr}.stepsGrid{grid-template-columns:1fr 1fr}}
 @media(max-width:700px){.container{width:min(100% - 28px,1160px)}.header{height:68px}.menuBtn{display:block}.navLinks{display:none;position:absolute;top:68px;left:0;right:0;background:#fff;border-bottom:1px solid #eee;padding:15px;flex-direction:column;align-items:stretch}.navLinks.open{display:flex}.navLinks a{padding:12px}.navLinks .navCta{text-align:center}.hero{padding:52px 0}.heroText h1,.pageHero h1{font-size:48px}.downloadControls{grid-template-columns:1fr}.urlInput{grid-template-columns:1fr}.platformGrid,.stepsGrid{grid-template-columns:1fr}.footerGrid{grid-template-columns:1fr;gap:28px}.footerBottom{flex-direction:column;gap:8px}.section h2,.featureGrid h2{font-size:36px}}
