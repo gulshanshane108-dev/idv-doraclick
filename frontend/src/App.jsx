@@ -17,6 +17,21 @@ import {
   validateUrl
 } from "./api";
 
+const PLATFORM_THEMES = {
+  Instagram: {
+    color: "#E1306C",
+    soft: "#FDE8F1",
+    border: "#F6B8D1",
+    gradient: "linear-gradient(45deg, #F58529, #DD2A7B 45%, #8134AF 75%, #515BD4)"
+  },
+  YouTube: { color: "#FF0000", soft: "#FFEDED", border: "#FFBFBF" },
+  Facebook: { color: "#1877F2", soft: "#E8F1FE", border: "#B9D5FB" },
+  TikTok: { color: "#FE2C55", soft: "#FDE9EE", border: "#F9B3C2" },
+  X: { color: "#0F1419", soft: "#E9EBEE", border: "#BEC4CC" }
+};
+
+const DEFAULT_THEME = { color: "#6d5dfc", soft: "#f0edff", border: "#dcd9f8" };
+
 const PLATFORMS = [
   { name: "Instagram", domains: "instagram.com", icon: "◎" },
   { name: "YouTube", domains: "youtube.com · youtu.be", icon: "▶" },
@@ -24,6 +39,16 @@ const PLATFORMS = [
   { name: "TikTok", domains: "tiktok.com", icon: "♪" },
   { name: "X", domains: "x.com · twitter.com", icon: "𝕏" }
 ];
+
+function detectPlatform(text = "") {
+  const u = String(text).toLowerCase();
+  if (u.includes("instagram.com")) return "Instagram";
+  if (u.includes("youtube.com") || u.includes("youtu.be")) return "YouTube";
+  if (u.includes("facebook.com") || u.includes("fb.watch")) return "Facebook";
+  if (u.includes("tiktok.com")) return "TikTok";
+  if (u.includes("x.com") || u.includes("twitter.com")) return "X";
+  return "";
+}
 
 const FAQS = [
   ["What does DoraClip do?", "DoraClip sends a publicly accessible media URL to its Spring Boot backend, which uses the configured downloader tools to prepare the requested file."],
@@ -93,6 +118,7 @@ function Layout({ children }) {
 }
 
 function Home() {
+  const [activePlatform, setActivePlatform] = useState("");
   return (
     <>
       <main>
@@ -114,7 +140,7 @@ function Home() {
               <span>✓ Temporary server files</span>
             </div>
           </div>
-          <DownloaderCard compact />
+          <DownloaderCard compact onPlatformChange={setActivePlatform} />
         </section>
 
         <section className="section container">
@@ -123,7 +149,7 @@ function Home() {
             <h2>One place for everyday downloads.</h2>
             <p>Enter a URL from a supported platform and DoraClip will detect it.</p>
           </div>
-          <PlatformGrid />
+          <PlatformGrid active={activePlatform} />
         </section>
 
         <section className="section soft">
@@ -148,21 +174,36 @@ function Feature({ icon, title, text }) {
   return <div className="feature"><b>{icon}</b><div><h3>{title}</h3><p>{text}</p></div></div>;
 }
 
-function PlatformGrid() {
+function PlatformGrid({ active = "" }) {
   return (
     <div className="platformGrid">
-      {PLATFORMS.map(p => (
-        <div className="platformCard" key={p.name}>
-          <span className="platformIcon">{p.icon}</span>
-          <strong>{p.name}</strong>
-          <small>{p.domains}</small>
-        </div>
-      ))}
+      {PLATFORMS.map(p => {
+        const theme = PLATFORM_THEMES[p.name];
+        const isActive = active === p.name;
+        return (
+          <div
+            className={isActive ? "platformCard active" : "platformCard"}
+            key={p.name}
+            data-platform={p.name}
+            style={isActive ? {
+              "--card-accent": theme.color,
+              "--card-soft": theme.soft,
+              "--card-border": theme.border
+            } : undefined}
+          >
+            <span className="platformIcon">{p.icon}</span>
+            <strong>{p.name}</strong>
+            <small>{p.domains}</small>
+            {isActive && <span className="platformActiveDot">● Active</span>}
+          </div>
+        );
+      })}
     </div>
   );
 }
 
 function Downloader() {
+  const [activePlatform, setActivePlatform] = useState("");
   return (
     <main>
       <section className="pageHero container">
@@ -171,10 +212,10 @@ function Downloader() {
         <p>Use a publicly accessible URL from one of the supported platforms.</p>
       </section>
       <section className="container downloaderSection">
-        <DownloaderCard />
+        <DownloaderCard onPlatformChange={setActivePlatform} />
         <div className="sideInfo">
           <h3>Supported platforms</h3>
-          <PlatformGrid />
+          <PlatformGrid active={activePlatform} />
           <p className="note">The backend ultimately determines whether a specific URL can be downloaded.</p>
         </div>
       </section>
@@ -182,7 +223,7 @@ function Downloader() {
   );
 }
 
-function DownloaderCard({ compact = false }) {
+function DownloaderCard({ compact = false, onPlatformChange }) {
   const [url, setUrl] = useState("");
   const [mode, setMode] = useState("video");
   const [quality, setQuality] = useState("720p");
@@ -194,15 +235,17 @@ function DownloaderCard({ compact = false }) {
   const [platform, setPlatform] = useState("");
 
   const busy = status === "checking" || status === "downloading";
+  const theme = PLATFORM_THEMES[platform] || DEFAULT_THEME;
+
+  // Live auto-detect on paste / type: theme the download section instantly.
+  useEffect(() => {
+    const found = detectPlatform(url);
+    setPlatform(found);
+    if (onPlatformChange) onPlatformChange(found);
+  }, [url]);
 
   function detect(text) {
-    const u = text.toLowerCase();
-    if (u.includes("instagram.com")) return "Instagram";
-    if (u.includes("youtube.com") || u.includes("youtu.be")) return "YouTube";
-    if (u.includes("facebook.com") || u.includes("fb.watch")) return "Facebook";
-    if (u.includes("tiktok.com")) return "TikTok";
-    if (u.includes("x.com") || u.includes("twitter.com")) return "X";
-    return "";
+    return detectPlatform(text);
   }
 
   function clearOutput() {
@@ -294,13 +337,23 @@ function DownloaderCard({ compact = false }) {
   }
 
   return (
-    <div className={compact ? "downloadCard compact" : "downloadCard"}>
+    <div
+      className={compact ? "downloadCard compact" : "downloadCard"}
+      data-platform={platform || "default"}
+      style={{
+        "--accent": theme.color,
+        "--accent-soft": theme.soft,
+        "--accent-border": theme.border
+      }}
+    >
       <div className="downloadCardTop">
         <div>
           <span className="eyebrow tiny">DOWNLOAD MEDIA</span>
           <h2>{compact ? "Try DoraClip" : "Download a video or audio file"}</h2>
         </div>
-        {platform && <span className="detected">✓ {platform}</span>}
+        {platform
+          ? <span className="detected" style={{ background: theme.soft, borderColor: theme.border, color: theme.color }}>✓ {platform}</span>
+          : <span className="detected muted">Paste a link</span>}
       </div>
 
       <label className="fieldLabel" htmlFor={compact ? "homeUrl" : "downloadUrl"}>Media URL</label>
@@ -309,6 +362,17 @@ function DownloaderCard({ compact = false }) {
           id={compact ? "homeUrl" : "downloadUrl"}
           value={url}
           onChange={e => { setUrl(e.target.value); if (status !== "idle") clearOutput(); }}
+          onPaste={e => {
+            const pasted = e.clipboardData?.getData("text") || "";
+            if (pasted) {
+              // Let the input update first, then force theme instantly for paste.
+              const found = detectPlatform(pasted);
+              if (found) {
+                setPlatform(found);
+                if (onPlatformChange) onPlatformChange(found);
+              }
+            }
+          }}
           onKeyDown={e => e.key === "Enter" && check()}
           placeholder="https://www.youtube.com/watch?v=..."
           autoComplete="off"
