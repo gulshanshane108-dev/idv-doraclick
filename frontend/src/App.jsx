@@ -30,7 +30,7 @@ const PLATFORM_THEMES = {
   X: { color: "#0F1419", soft: "#E9EBEE", border: "#BEC4CC" }
 };
 
-const DEFAULT_THEME = { color: "#16a34a", soft: "#e7f6ec", border: "#b9e4c7" };
+const DEFAULT_THEME = { color: "#ff6a00", soft: "rgba(255,106,0,.14)", border: "rgba(255,106,0,.45)" };
 
 const PLATFORMS = [
   { name: "Instagram", domains: "instagram.com", icon: "◎" },
